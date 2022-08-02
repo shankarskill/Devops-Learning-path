@@ -1,0 +1,56 @@
+***** Kubernetes Dashboard | Kubernetes Admin GUI | Kubernetes Desktop Client *****
+Kubernets provides default yaml configurations for the dashboard.
+
+Please execute following command to apply dashboard configuration
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
+
+Accessing the Dashboard UI
+
+kubectl proxy
+
+Kubectl will make Dashboard available at http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/.
+
+create a sample user
+
+Create Service Account : admin-user and namespace : kubernetes-dashboard or kube-system
+
+Creating a Service Account
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+  
+  file as dashboard-adminuser.yaml
+
+kubectl apply -f dashboard-adminuser.yaml
+
+Creating a ClusterRoleBinding
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+ 
+ adminuser-rolebinding.yaml
+ 
+ kubectl apply -f adminuser-rolebinding.yaml
+ 
+ Create Access/Bearer Token for admin-user / Getting a Bearer Token
+ 
+ kubectl -n kubernetes-dashboard create token admin-user
+
+Clean up and next steps
+
+kubectl -n kubernetes-dashboard delete serviceaccount admin-user
+kubectl -n kubernetes-dashboard delete clusterrolebinding admin-user
