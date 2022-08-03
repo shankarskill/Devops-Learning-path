@@ -1,0 +1,52 @@
+***** Git commands ******
+git init
+used to initialize a empty repository
+
+git commit -m "message"
+used to save the changes to the local repository. the command helps you to keep record of all the changes made
+
+git add
+is used to add the files to staging area
+
+git status
+is used to display the state of the current repo and the staging are
+
+git merge
+is used to integrate different branches into a single branch
+
+git push 
+is used to upload the content from the local repo to the remote repo
+
+git pull
+is used to fetch the new commits and merge them from the remo to the local branch
+
+git clone
+is used to download
+
+git branch
+is used to create list rename and delete branches
+
+git checkout
+navigation btw the branches
+
+git config
+is uded to set config the user and passw
+
+git diff
+this command shows the diff btw the changes made on a file
+
+git log 
+used view the previous commits to have taken places in the git project
+
+git reset 
+is used to undo the local changes that are made to the state of git repo
+-- soft --mixed --hard
+
+git rebase
+is used to intigrate changes from one branch to another
+
+git pull request
+A pull request is an event in Git where a contributor asks a maintainer of a Git repository to review code they want to merge into a project.
+
+git stash
+is used to save the temporary changes made in file used in later
