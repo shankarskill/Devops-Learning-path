@@ -1,0 +1,29 @@
+What is Jenkins ?
+Jenkins is an oss automation tool written in java with pluggins built for cicd purpose.
+
+Define the process of Jenkins 
+commit the changes
+detect source code changes
+the bbuild either passes or fails
+generate feedback
+
+what are the benefits of using jenkins
+cache build failures
+automate build report notification
+achieve ci
+automation of maven project
+easy tracking of bugs
+
+what is the use of pipeline in jenkins
+pipeline is pluggin is used in jenkins pipeline, which gives us the view of stages or
+tasks to perform one after the other in the pipeline form
+
+expalin the terms agent, post-section, jenkinsfile
+agent is to tell jenkins to execute the pipeline in a particular manner and order
+
+post-section needed to add some notification and to perform other tasks at the end of a pipeline
+
+what is trigger? 
+triggers are used to define when and how pipelines should be executed
+
+ci in jenkins?
