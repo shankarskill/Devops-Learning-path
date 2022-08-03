@@ -1,0 +1,36 @@
+what is docker ?
+docker is tool used to create a containers and containers are isolated env to run an app
+
+what is the adv of docker over hypervisers?
+
+what is docker image ?
+docker image is bundled with an app code & dependencies, soft packages)
+
+what is container ?
+container is runtime instance of an image
+
+docker hub
+registry wer need to download images from hub pvt and pub
+
+how to run container 
+docker run -t -i image
+
+what are the networks that are ava by default?
+bridge none host
+
+docker copy
+docker copy command used to copy files from current work dir / local 
+FROM node:alpine
+WORKDIR /user/app
+COPY ./ ./
+RUN npm install
+CMD ["npm", "start"]
+ 
+docker add command works on remote files 
+
+how do you save docker image?
+docker save -o image.tar.gz container-tag
+
+compose ?
+contains about the services, nws, and volumes for setting up the docker app
+
