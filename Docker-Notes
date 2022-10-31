@@ -1,0 +1,298 @@
+Docker
+
+command to check docker version
+docker -v
+
+docker system info -> the docker system info command gives a lot of useful info like total number of containers and images along with information 
+about host resource utilization etc.
+
+docker version --> the docker version command gives the information about docker client and server.
+
+docker system events
+docker event --> the docker event command serves us with the stream of events or interactions that are happening with the docker daemon.
+
+docker logs
+docker logs --> docker logs command serves us with the stream the log data of application inside the container.
+
+************************* Launching our first container ***************************
+docker run alpine:3.4 uptime
+we are using docker client to
+run a application/command uptime using
+an image by name alpine:3.4
+
+command to list containers
+docker container  ps
+docker container  ps -l
+
+Checking Status of the containers
+docker ps --> docker ps command will only show list of container(s) which are running
+docker ps -l --> the -l flag shows the last run container along with other details like image it used, command it executed, return code of that command, etc
+
+docker ps -n 2 -->  show the desirable number of last run containers
+
+docker ps -a --> This command will show all the container we have run so far.
+
+Running Containers in Interactive Mode
+We can interact with docker containers by giving -it flags at the run time. These flags stand for
+* i - Interactive
+* t - tty
+docker run -it alpine:3.4 sh
+
+Running Containers in Detached Mode
+docker run -idt shankar.h/loop program
+
+Checking Logs
+docker container ps
+
+docker container logs <container_id/name>
+
+docker container logs -f  <container_id/name>
+
+Connecting to running container to execute commands
+docker exec -it <container_id/name> sh
+
+Launching a container with a pre built app image
+docker container run  -idt -P  schoolofdevops/vote
+
+Renaming the container
+docker rename 7d58ecc05754 vote
+
+Inspecting the container
+docker inspect vote
+
+Copying files between container and client host
+let us create a file on the host
+touch testfile
+
+to copy the testfile from host machine to container
+docker cp testfile vote:/opt
+
+Now you may try to cp some files from the container to the host machine
+docker cp vote:/app .
+ls
+
+Checking the Stats
+docker stats --no-stream=true vote
+docker stats
+
+Putting limits on Running Containers
+First, let us monitor the utilization
+
+docker stats
+You can see that Memory attribute has max as its value, which means unlimited usage of host's RAM. We can put a cap on that by using update command
+
+docker update --memory 400M --memory-swap -1 vote 
+docker stat
+
+Limiting Resources while launching new containers
+
+The following resources can be limited using the update command
+* CPU * Memory * Disk IO * Capabilities
+
+Open two terminals, lets call them T1, and T2
+In T1, start monitoring the stats
+
+From T2, launch containers with different CPU shares as well as cpus configurations. Default CPU shares are set to 1024. This is a relative weight. 
+Observe docker stats command after every launch to see the effect of your configurations.
+[CPU Shares]
+
+docker run -d --cpu-shares 1024 schoolofdevops/stresstest stress --cpu 2
+
+docker run -d --cpu-shares 1024 schoolofdevops/stresstest stress --cpu 2
+
+docker run -d --cpu-shares 512 schoolofdevops/stresstest stress --cpu 2
+
+docker run -d --cpu-shares 512 schoolofdevops/stresstest stress --cpu 2
+
+docker run -d --cpu-shares 4096 schoolofdevops/stresstest stress --cpu 2
+
+
+[CPUs]
+
+docker run -d --cpus 0.2 schoolofdevops/stresstest stress --cpu 2
+
+Checking disk utilisation by
+docker system df
+
+docker container prune
+WARNING! This will remove all stopped containers.
+
+docker system prune
+WARNING! This will remove:
+        - all stopped containers
+        - all networks not used by at least one container
+        - all dangling images
+        - all build cache
+Are you sure you want to continue? [y/N]
+
+Stopping and Removing Containers
+Stop a container
+docker stop <container_id/name>
+
+Kill a container
+This command will send SIGKILL signal and kills the container ungracefully
+
+If you want to remove a container
+docker rm <container_id/name>
+docker rm -f <container_id/name>
+
+Exercises
+Launching Containers with Elevated Privileges
+
+Lab : Build a docker image for Instavote frontend vote app
+Approach 1: Building docker image for voteapp manually
+on the host
+
+git clone https://github.com/schoolofdevops/vote
+docker container run -idt --name build -p 8000:80 python:2.7-alpine sh
+cd vote
+docker cp . build:/app
+docker exec -it build sh
+inside the container
+
+cd /app
+pip install -r requirements.txt
+gunicorn app:app -b 0.0.0.0:80
+Validate by accessing http://IPADDRESS:8000
+
+on the host
+
+docker diff build
+
+docker container commit build <docker_id>/vote:v1
+
+docker login
+
+docker image push <docker_id>/vote:v1
+
+Approach 2: Building image with Dockerfile
+FROM python:2.7-alpine
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+EXPOSE 80
+
+CMD  gunicorn app:app -b 0.0.0.0:80
+Build image using,
+
+docker build -t <docker_id>/vote:v2 .
+
+Validate
+docker image ls
+docker image history <docker_id>/vote:v2
+docker image history <docker_id>/vote:v1
+
+docker container run -idt -P <docker_id>/vote:v2
+docker ps
+
+Once validated, tag and push
+
+docker image tag <docker_id>/vote:v2 <docker_id>/vote:latest
+docker login
+docker push <docker_id>/vote
+
+Lab: Docker Networking
+Host Networking
+bridge
+host
+peer
+none
+
+Examine the existing network
+docker network ls
+
+Creating new network
+docker network create -d bridge mynet
+
+validate
+docker network ls
+docker network inspect mynet
+
+Launching containers in different bridges
+
+Launch two containers nt01 and nt02 in default bridge network
+docker container run -idt --name nt01 alpine sh
+docker container run -idt --name nt02 alpine sh
+
+Launch two containers nt03 and nt04 in mynet bridge network
+docker container run -idt --name nt03 --net mynet alpine sh
+docker container run -idt --name nt04 --net mynet alpine sh
+
+Now, lets examine if they can interconnect,
+docker exec nt01 ifconfig eth0
+docker exec nt02 ifconfig eth0
+docker exec nt03 ifconfig eth0
+docker exec nt04 ifconfig eth0
+
+Create a table with the ips on your host. Once you do that,
+
+Try to,
+
+ping from nt01 to nt02
+ping from nt01 to nt03
+ping from nt03 to nt04
+ping from nt03 to nt02
+
+[replace ip addresses as per your setup]
+docker exec nt01  ping 172.17.0.19
+
+docker exec nt01  ping 172.18.0.2
+
+docker exec nt03  ping 172.17.0.19
+
+docker exec nt03  ping 172.18.0.2
+
+Using None Network Driver
+docker container run -idt --name nt05 --net none alpine sh
+docker exec -it nt05 sh
+ifconfig
+
+Using Host Network Driver
+docker container run -idt --name nt05 --net host  alpine sh
+docker exec -it nt05 sh
+ifconfig
+
+Observe docker bridge, routing and port mapping
+Launch netshoot and connect to the host network
+docker run -it --net host --privileged  nicolaka/netshoot
+
+Examine port mapping,
+iptables -nvL -t nat
+
+Observe docker bridge and routing with the following command,
+brctl show
+ip route show
+
+Lab: Persistent Volumes with Docker
+Types of volumes
+automatic volumes
+named volumes
+volume binding
+
+Automatic Volumes
+docker container run  -idt --name vt01 -v /var/lib/mysql  alpine sh
+docker inspect vt01 | grep -i mounts -A 10
+
+Named volumes
+docker container run  -idt --name vt02 -v db-data:/var/lib/mysql  alpine sh
+docker inspect vt02 | grep -i mounts -A 10
+
+Volume binding
+mkdir /root/sysfoo
+docker container run  -idt --name vt03 -v /root/sysfoo:/var/lib/mysql  alpine sh
+docker inspect vt03 | grep -i mounts -A 10
+
+Sharing files between host and the container
+ls /root/sysfoo/
+touch /root/sysfoo/file1
+docker exec -it vt03 sh
+ls sysfoo/
+
+
+
+
+
